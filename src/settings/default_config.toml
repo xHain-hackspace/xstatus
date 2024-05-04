@@ -1,0 +1,18 @@
+endpoint = "127.0.0.1:8080"
+
+[status]
+api_compatibility = ["14"]
+space = "xHain hack+makespace"
+logo = "https://x-hain.de/images/logo/xhain.svg"
+url = "https://x-hain.de"
+[status.location]
+lat = 52.5127904
+lon = 13.4497773
+timezone = "Europe/Berlin"
+[status.contact]
+mastodon = "@xHain_hackspace@chaos.social"
+matrix = "#general:x-hain.de"
+email = "info@x-hain.de"
+[status.feeds.calendar]
+type = "ical"
+url = "https://files.x-hain.de/remote.php/dav/public-calendars/Yi63cicwgDnjaBHR"
