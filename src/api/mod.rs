@@ -1,5 +1,5 @@
 use crate::AppState;
-use actix_web::{error, get, post, web::Data, web::Form, web::Json};
+use actix_web::{error, get, post, web::Data, web::Json};
 use serde::Deserialize;
 use spaceapi::{State, Status};
 
@@ -21,7 +21,7 @@ pub async fn get_status(app_state: Data<AppState>) -> Json<Status> {
 }
 
 #[derive(Debug, Deserialize)]
-struct StateFormData {
+struct StateData {
     open: Option<bool>,
     message: Option<String>,
 }
@@ -29,7 +29,7 @@ struct StateFormData {
 #[post("/status/state")]
 pub async fn set_state(
     app_state: Data<AppState>,
-    new_state_data: Form<StateFormData>,
+    new_state_data: Json<StateData>,
 ) -> Result<Json<String>, SetStateError> {
     let mut status = match app_state.status.lock() {
         Err(err) => {
