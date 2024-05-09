@@ -1,5 +1,5 @@
 use crate::AppState;
-use actix_web::{error, get, put, web::Data, web::Form, web::Json};
+use actix_web::{error, get, post, web::Data, web::Form, web::Json};
 use serde::Deserialize;
 use spaceapi::{State, Status};
 
@@ -26,7 +26,7 @@ struct StateFormData {
     message: Option<String>,
 }
 
-#[put("/status/state")]
+#[post("/status/state")]
 pub async fn set_state(
     app_state: Data<AppState>,
     new_state_data: Form<StateFormData>,
@@ -48,7 +48,7 @@ pub async fn set_state(
         Some(state) => state,
     };
     state.open = new_state_data.open;
-    state.message = new_state_data.message.clone();
+    state.message.clone_from(&new_state_data.message);
     status.state = Some(state.to_owned());
     Ok(Json(String::from("Success")))
 }
