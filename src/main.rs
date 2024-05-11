@@ -1,4 +1,5 @@
 mod api;
+mod errors;
 mod settings;
 
 use actix_web::{middleware::Logger, web::Data, App, HttpServer};

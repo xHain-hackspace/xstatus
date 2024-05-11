@@ -1,23 +1,18 @@
+use crate::errors::{AppError, AppErrorType};
 use crate::AppState;
-use actix_web::{error, get, post, web::Data, web::Json};
+use actix_web::{get, post, web::Data, web::Json, Result};
 use serde::Deserialize;
 use spaceapi::{State, Status};
 
-use derive_more::{Display, Error};
-
-#[derive(Debug, Display, Error)]
-#[display(fmt = "error setting the state: {}", reason)]
-struct SetStateError {
-    reason: String,
-}
-
-// Use default implementation for `error_response()` method
-impl error::ResponseError for SetStateError {}
-
 #[get("/status")]
-pub async fn get_status(app_state: Data<AppState>) -> Json<Status> {
-    let status = app_state.status.lock().unwrap().clone();
-    Json(status)
+pub async fn get_status(app_state: Data<AppState>) -> Result<Json<Status>> {
+    let status = app_state.status.lock().map_err(|err| AppError {
+        message: None,
+        cause: Some(err.to_string()),
+        error_type: AppErrorType::NotFoundError,
+    })?;
+
+    Ok(Json(status.clone()))
 }
 
 #[derive(Debug, Deserialize)]
@@ -30,16 +25,13 @@ struct StateData {
 pub async fn set_state(
     app_state: Data<AppState>,
     new_state_data: Json<StateData>,
-) -> Result<Json<String>, SetStateError> {
-    let mut status = match app_state.status.lock() {
-        Err(err) => {
-            log::error!("unable get app status: {}", err);
-            return Err(SetStateError {
-                reason: err.to_string(),
-            });
-        }
-        Ok(status) => status,
-    };
+) -> Result<Json<String>> {
+    let mut status = app_state.status.lock().map_err(|err| AppError {
+        message: None,
+        cause: Some(err.to_string()),
+        error_type: AppErrorType::InternalError,
+    })?;
+
     let mut default_state = State {
         ..Default::default()
     };
