@@ -18,6 +18,7 @@ pub async fn get_status(app_state: Data<AppState>) -> Result<Json<Status>> {
 #[derive(Debug, Deserialize)]
 struct StateData {
     open: Option<bool>,
+    open_string: Option<String>,
     message: Option<String>,
 }
 
@@ -39,7 +40,23 @@ pub async fn set_state(
         None => &mut default_state,
         Some(state) => state,
     };
-    state.open = new_state_data.open;
+    state.open = match new_state_data.open {
+        None => {
+            // try to parse the string version
+            let parsed_open = new_state_data
+                .open_string
+                .to_owned()
+                .unwrap()
+                .parse::<bool>()
+                .map_err(|err| AppError {
+                    message: None,
+                    cause: Some(err.to_string()),
+                    error_type: AppErrorType::InternalError,
+                });
+            Some(parsed_open.unwrap())
+        }
+        Some(open) => Some(open),
+    };
     state.message.clone_from(&new_state_data.message);
     status.state = Some(state.to_owned());
     Ok(Json(String::from("Success")))
