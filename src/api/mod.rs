@@ -51,7 +51,11 @@ pub async fn set_state(
                 .parse::<bool>()
                 .map_err(|err| AppError {
                     message: None,
-                    cause: Some(err.to_string()),
+                    cause: Some(format!(
+                        "error parsing open_string: {} for: {}",
+                        err,
+                        new_state_data.open_string.clone().unwrap()
+                    )),
                     error_type: AppErrorType::InternalError,
                 });
             Some(parsed_open.unwrap())
