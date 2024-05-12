@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 config = "0.14.0"
 actix-web = "^4"
+actix-cors = "0.7"
 serde = { version = "^1", features = ["derive"] }
 spaceapi = "^0.9"
 log = "^0.4"

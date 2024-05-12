@@ -2,7 +2,8 @@ mod api;
 mod errors;
 mod settings;
 
-use actix_web::{middleware::Logger, web::Data, App, HttpServer};
+use actix_cors::Cors;
+use actix_web::{http, middleware::Logger, web::Data, App, HttpServer};
 use spaceapi::Status;
 use std::sync::Mutex;
 
@@ -29,8 +30,14 @@ async fn main() -> std::io::Result<()> {
     });
     HttpServer::new(move || {
         let logger = Logger::default();
+        let cors = Cors::default()
+            .allow_any_origin()
+            .allowed_methods(vec!["GET", "POST"])
+            .allowed_headers(vec![http::header::AUTHORIZATION, http::header::ACCEPT])
+            .allowed_header(http::header::CONTENT_TYPE);
         App::new()
             .wrap(logger)
+            .wrap(cors)
             .service(api::get_status)
             .service(api::set_state)
             .app_data(app_state_data.clone())
