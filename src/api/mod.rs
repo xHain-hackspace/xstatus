@@ -47,6 +47,7 @@ pub async fn set_state(
                 .open_string
                 .to_owned()
                 .unwrap()
+                .to_lowercase()
                 .parse::<bool>()
                 .map_err(|err| AppError {
                     message: None,
