@@ -46,7 +46,7 @@ pub async fn set_state(
             let parsed_open = new_state_data
                 .open_string
                 .to_owned()
-                .unwrap()
+                .unwrap_or("false".to_string())
                 .to_lowercase()
                 .parse::<bool>()
                 .map_err(|err| AppError {
