@@ -1,4 +1,5 @@
 endpoint = "127.0.0.1:8080"
+path_prefix = "spaceapi"
 
 [status]
 api_compatibility = ["14"]

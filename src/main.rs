@@ -3,7 +3,7 @@ mod errors;
 mod settings;
 
 use actix_cors::Cors;
-use actix_web::{http, middleware::Logger, web::Data, App, HttpServer};
+use actix_web::{http, middleware::Logger, web, web::Data, App, HttpServer};
 use spaceapi::Status;
 use std::sync::Mutex;
 
@@ -23,7 +23,12 @@ async fn main() -> std::io::Result<()> {
 
     log::info!("Listening on {}", settings.endpoint);
 
-    let status = Status { ..settings.status };
+    let status = Status {
+        ..settings.status.clone()
+    };
+
+    let api_version = settings.get_api_version().unwrap();
+    let path_prefix = settings.path_prefix;
 
     let app_state_data = Data::new(AppState {
         status: Mutex::new(status),
@@ -38,8 +43,11 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(logger)
             .wrap(cors)
-            .service(api::get_status)
-            .service(api::set_state)
+            .service(
+                web::scope(format!("{}/{}", path_prefix, api_version).as_str())
+                    .service(api::get_status)
+                    .service(api::set_state),
+            )
             .app_data(app_state_data.clone())
     })
     .bind(settings.endpoint)?
