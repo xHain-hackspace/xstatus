@@ -1,4 +1,4 @@
-FROM rust:1.98 as builder
+FROM rust:1.98-bookworm as builder
 
 ENV USER=xstatus
 ENV UID=10001
