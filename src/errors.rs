@@ -53,8 +53,65 @@ impl ResponseError for AppError {
     }
 
     fn error_response(&self) -> actix_web::HttpResponse<BoxBody> {
+        if let Some(cause) = &self.cause {
+            log::error!("{}", cause);
+        }
         HttpResponse::build(self.status_code()).json(AppErrorResponse {
             error: self.message(),
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use actix_web::body::to_bytes;
+    use serde_json::Value;
+
+    fn error(message: Option<&str>, error_type: AppErrorType) -> AppError {
+        AppError {
+            message: message.map(String::from),
+            cause: Some("cause".to_string()),
+            error_type,
+        }
+    }
+
+    async fn response_body(err: &AppError) -> Value {
+        let body = to_bytes(err.error_response().into_body()).await.unwrap();
+        serde_json::from_slice(&body).unwrap()
+    }
+
+    #[test]
+    fn status_codes() {
+        assert_eq!(
+            error(None, AppErrorType::InternalError).status_code(),
+            StatusCode::INTERNAL_SERVER_ERROR
+        );
+        assert_eq!(
+            error(None, AppErrorType::NotFoundError).status_code(),
+            StatusCode::NOT_FOUND
+        );
+    }
+
+    #[actix_web::test]
+    async fn default_messages() {
+        let not_found = error(None, AppErrorType::NotFoundError);
+        assert_eq!(
+            response_body(&not_found).await["error"],
+            "The response item was not found"
+        );
+
+        let internal = error(None, AppErrorType::InternalError);
+        assert_eq!(
+            response_body(&internal).await["error"],
+            "An unexpected error has occured"
+        );
+    }
+
+    #[actix_web::test]
+    async fn custom_message_takes_precedence() {
+        let err = error(Some("custom"), AppErrorType::NotFoundError);
+        assert_eq!(err.error_response().status(), StatusCode::NOT_FOUND);
+        assert_eq!(response_body(&err).await["error"], "custom");
     }
 }

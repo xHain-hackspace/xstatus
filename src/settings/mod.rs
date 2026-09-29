@@ -38,3 +38,80 @@ impl Settings {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::PathBuf;
+
+    struct TempConfig(PathBuf);
+
+    impl TempConfig {
+        fn new(name: &str, contents: &str) -> Self {
+            let path =
+                std::env::temp_dir().join(format!("xstatus-{}-{}.toml", name, std::process::id()));
+            std::fs::write(&path, contents).unwrap();
+            TempConfig(path)
+        }
+
+        fn path(&self) -> &str {
+            self.0.to_str().unwrap()
+        }
+    }
+
+    impl Drop for TempConfig {
+        fn drop(&mut self) {
+            let _ = std::fs::remove_file(&self.0);
+        }
+    }
+
+    #[test]
+    fn loads_defaults_without_config_file() {
+        let settings = Settings::new("does-not-exist.toml").unwrap();
+
+        assert_eq!(settings.endpoint, "127.0.0.1:8080");
+        assert_eq!(settings.path_prefix, "spaceapi");
+        assert_eq!(settings.status.space, "xHain hack+makespace");
+        assert_eq!(settings.status.state, None);
+        assert_eq!(settings.get_api_version().unwrap(), "14");
+    }
+
+    #[test]
+    fn config_file_overrides_defaults() {
+        let config = TempConfig::new(
+            "override",
+            r#"
+endpoint = "0.0.0.0:9000"
+
+[status]
+space = "Other Space"
+"#,
+        );
+
+        let settings = Settings::new(config.path()).unwrap();
+
+        assert_eq!(settings.endpoint, "0.0.0.0:9000");
+        assert_eq!(settings.status.space, "Other Space");
+        // values not set in the file keep their defaults
+        assert_eq!(settings.path_prefix, "spaceapi");
+        assert_eq!(settings.status.url, "https://x-hain.de");
+    }
+
+    #[test]
+    fn invalid_config_file_is_an_error() {
+        let config = TempConfig::new("invalid", "endpoint = [");
+
+        assert!(Settings::new(config.path()).is_err());
+    }
+
+    #[test]
+    fn api_version_missing() {
+        let mut settings = Settings::new("does-not-exist.toml").unwrap();
+
+        settings.status.api_compatibility = Some(vec![]);
+        assert!(settings.get_api_version().is_err());
+
+        settings.status.api_compatibility = None;
+        assert!(settings.get_api_version().is_err());
+    }
+}
