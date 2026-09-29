@@ -21,13 +21,13 @@ dependencies = [
 
 [[package]]
 name = "actix-cors"
-version = "0.7.0"
+version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f9e772b3bcafe335042b5db010ab7c09013dad6eac4915c91d8d50902769f331"
+checksum = "2aff07ada3254fc02618cb7850da91dceb23b5dbda53c6676ccbb28ba504f150"
 dependencies = [
  "actix-utils",
  "actix-web",
- "derive_more 0.99.17",
+ "derive_more",
  "futures-util",
  "log",
  "once_cell",
@@ -48,7 +48,7 @@ dependencies = [
  "brotli",
  "bytes",
  "bytestring",
- "derive_more 2.1.1",
+ "derive_more",
  "encoding_rs",
  "flate2",
  "foldhash",
@@ -163,7 +163,7 @@ dependencies = [
  "bytestring",
  "cfg-if",
  "cookie",
- "derive_more 2.1.1",
+ "derive_more",
  "encoding_rs",
  "foldhash",
  "futures-core",
@@ -388,12 +388,6 @@ dependencies = [
 
 [[package]]
 name = "convert_case"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6245d59a3e82a7fc217c5828a6692dbc6dfb63a0c8c90495621f7b9d79704a0e"
-
-[[package]]
-name = "convert_case"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ec182b0ca2f35d8fc196cf3404988fd8b8c739a4d270ff118a398feb0cbec1ca"
@@ -461,19 +455,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b42b6fa04a440b495c8b04d0e71b707c585f83cb9cb28cf8cd0d976c315e31b4"
 dependencies = [
  "powerfmt",
-]
-
-[[package]]
-name = "derive_more"
-version = "0.99.17"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4fb810d30a7c1953f91334de7244731fc3f3c10d7fe163338a35b9f640960321"
-dependencies = [
- "convert_case 0.4.0",
- "proc-macro2",
- "quote",
- "rustc_version",
- "syn 1.0.109",
 ]
 
 [[package]]
@@ -1361,17 +1342,6 @@ name = "stable_deref_trait"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6ce2be8dc25455e1f91df71bfa12ad37d7af1092ae736f3a6cd0e37bc7810596"
-
-[[package]]
-name = "syn"
-version = "1.0.109"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "72b64191b275b66ffe2469e8af2c1cfe3bafa67b529ead792a6d0160888b4237"
-dependencies = [
- "proc-macro2",
- "quote",
- "unicode-ident",
-]
 
 [[package]]
 name = "syn"
